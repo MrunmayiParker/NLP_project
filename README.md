@@ -50,7 +50,7 @@ Suggested Workflow:
 For each paper in the database:
 Compute cosine similarity between its embedding and the query embedding.
 
-6.Rank and Filter Results
+6. Rank and Filter Results
   -Sort the papers by similarity score (descending order).
   -Return the top N most similar papers.
   -Filter results based on publication date, domain, etc.
