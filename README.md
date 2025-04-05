@@ -27,6 +27,36 @@ Given a paper or abstract, recommends similar papers using cosine similarity of 
 Leverages pre-trained NLP models to compute contextual similarity between research texts.
 Aids in literature discovery by surfacing relevant papers users may have missed.
 
+Suggested Workflow:
+1. Input paper or abstract
+  
+2. Text processing:
+     -lowercasing
+     -Removing special characters, extra whitespaces, etc
+     -Removing stopwords
+     -Tokenization
+   
+3. Embedding Generation
+  -Use a pre-trained NLP model to convert text to a dense vector (embedding):
+    Popular choices: Sentence-BERT, SciBERT, Universal Sentence Encoder, etc.
+    These models map semantically similar texts to nearby points in vector space.
+   
+4. Retrieve Stored Embeddings
+  -Load a precomputed embedding database:
+    Each paper in the dataset has its abstract/title embedded and stored.
+    Stored using tools like FAISS, Annoy, or simply in a NumPy array or database for fast access.
+   
+5. Cosine Similarity Computation
+For each paper in the database:
+Compute cosine similarity between its embedding and the query embedding.
+
+6.Rank and Filter Results
+  -Sort the papers by similarity score (descending order).
+  -Return the top N most similar papers.
+  -Filter results based on publication date, domain, etc.
+  -Add a minimum threshold for similarity.
+​
+
 LLM Chatbot Research
 As part of the RAG chatbot development, we researched and tested multiple open-source and API-based large language models (LLMs) for performance, cost, and flexibility.
 
