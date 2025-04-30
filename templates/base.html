@@ -1,0 +1,73 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Research Assistant{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Optional Tailwind CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .paper-box {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        .paper-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .paper-abstract {
+            margin: 10px 0;
+            color: #555;
+        }
+        .paper-link {
+            color: #1e90ff;
+            text-decoration: underline;
+            font-size: 0.95rem;
+        }
+    </style>
+
+    {% block head %}
+    {% endblock %}
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 bg-blue-600 p-4 flex justify-between items-center text-white ">
+        <div class="text-xl font-bold">
+            <a href="/" class="hover:underline">Research Assistant</a>
+        </div>
+        <div class="space-x-4">
+            <a href="/search" class="hover:underline">Search</a>
+            <!-- <a href="/upload" class="hover:underline">Upload</a> -->
+            <a href="/chat" class="hover:underline">Chat</a>
+            <a href="/logout" class="hover:underline">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="flex-1">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-200 text-center p-4 text-sm text-gray-600">
+        &copy; 2025 Research Assistant Tool. All rights reserved.
+    </footer>
+
+    {% block scripts %}
+    {% endblock %}
+    
+</body>
+</html>

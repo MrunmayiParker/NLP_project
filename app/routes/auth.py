@@ -1,31 +1,58 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from app import db
 from app.models.user import User
-from flask_login import login_user, logout_user, login_required, current_user
+from flask_login import login_user, login_required, logout_user
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-@auth_bp.route("/register", methods=["POST"])
+@auth_bp.route("/register", methods=["GET", "POST"])
 def register():
-    data = request.get_json()
-    if User.query.filter((User.email == data['email']) | (User.username == data['username'])).first():
-        return jsonify({"message": "User already exists"}), 409
+    if request.method == "POST":
+        if request.is_json:
+            data = request.get_json()
+            username = data.get("username")
+            email = data.get("email")
+            password = data.get("password")
 
-    user = User(username=data['username'], email=data['email'])
-    user.set_password(data['password'])
-    db.session.add(user)
-    db.session.commit()
+            if not username or not email or not password:
+                return jsonify({"message": "All fields are required"}), 400
 
-    return jsonify({"message": "User registered successfully!"}), 201
+            if User.query.filter((User.username == username) | (User.email == email)).first():
+                return jsonify({"message": "User already exists"}), 409
 
-@auth_bp.route("/login", methods=["POST"])
+            user = User(username=username, email=email)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+
+            return jsonify({"message": "User registered successfully!"}), 201  # ✅ respond with JSON
+
+        return jsonify({"message": "Request must be JSON"}), 400
+
+    return render_template("register.html")
+
+@auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    data = request.get_json()
-    user = User.query.filter_by(email=data['email']).first()
-    if user and user.check_password(data['password']):
-        login_user(user)
-        return jsonify({"message": "Logged in successfully!"}), 200
-    return jsonify({"message": "Invalid credentials"}), 401
+    if request.method == "POST":
+        if request.is_json:
+            data = request.get_json()
+        else:
+            data = request.form
+
+        user = User.query.filter_by(email=data['email']).first()
+        if user and user.check_password(data['password']):
+            login_user(user, remember=True) #change
+            if request.is_json:
+                return jsonify({"message": "Logged in successfully!"}), 200
+            else:
+                return redirect(url_for('home.homepage'))  # (after login redirect)
+
+        if request.is_json:
+            return jsonify({"message": "Invalid credentials"}), 401
+        else:
+            return render_template("login.html", message="Invalid credentials.")
+
+    return render_template("login.html")
 
 @auth_bp.route("/logout", methods=["POST"])
 @login_required

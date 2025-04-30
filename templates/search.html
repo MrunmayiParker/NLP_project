@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Search Papers{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-center">Research Paper Search</h1>
+
+<!-- Search Bar -->
+<div class="flex justify-center mb-8">
+    <input id="searchInput" type="text" placeholder="Enter topic..."
+        class="w-1/2 px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+    <button onclick="searchPapers()" class="px-6 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700">Search</button>
+</div>
+
+<!-- Results Container -->
+<div id="resultsContainer" class="space-y-6 px-4 md:px-16"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function searchPapers() {
+        const query = document.getElementById('searchInput').value.trim();
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        if (!query) {
+            alert('Please enter a search query.');
+            return;
+        }
+
+        resultsContainer.innerHTML = "<p class='text-center'>Searching...</p>";
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/search_papers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: query, max_results: 5 })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                resultsContainer.innerHTML = "";
+                data.forEach(paper => {
+                    const paperDiv = document.createElement('div');
+                    paperDiv.className = 'bg-white p-6 rounded-lg shadow-md space-y-4';
+
+                    // Important: escape quotes inside title
+                    const safeTitle = paper.title.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+
+                    paperDiv.innerHTML = `
+                        <div class="paper-title text-lg font-semibold">${paper.title}</div>
+                        <div class="paper-abstract text-gray-600">${paper.summary.slice(0, 500)}...</div>
+                        <div class="flex gap-4">
+                            <a class="text-blue-600 underline" href="${paper.pdf_url}" target="_blank">View Full Paper (PDF)</a>
+                            <button onclick="askQuestions('${paper.pdf_url}')"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                                Ask Questions
+                            </button>
+                        </div>
+                    `;
+
+                    resultsContainer.appendChild(paperDiv);
+                });
+            } else {
+                resultsContainer.innerHTML = `<p class="text-center text-red-600">Error: ${data.message}</p>`;
+            }
+        } catch (error) {
+            console.error('Error fetching papers:', error);
+            resultsContainer.innerHTML = `<p class="text-center text-red-600">Failed to fetch papers.</p>`;
+        }
+    }
+
+    async function askQuestions(pdfUrl) {
+    try {
+        // Show loading spinner
+        const resultsContainer = document.getElementById('resultsContainer');
+        resultsContainer.innerHTML = `<p class="text-center animate-pulse">Preparing your paper, please wait...</p>`;
+
+        const response = await fetch('http://127.0.0.1:5000/api/prepare_paper', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pdf_url: pdfUrl })
+        });
+
+        let data;
+        try {
+            data = await response.json();  // Attempt to parse JSON
+        } catch (jsonError) {
+            const fallbackText = await response.text();
+            console.error("❌ Failed to parse JSON. Raw response:", fallbackText);
+            alert("Server returned an invalid response. Check backend logs.");
+            return;
+        }
+
+        if (response.ok) {
+            console.log("Paper prepared successfully:", data.message);
+            window.location.href = '/search/chat';
+        } else {
+            alert('Failed to prepare paper: ' + data.message);
+        }
+
+    } catch (error) {
+        console.error('Error preparing paper:', error);
+        alert('Something went wrong. Check your backend connection or logs.');
+    }
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Paper Chat{% endblock %}
+
+{% block content %}
+<div class="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+
+  <!-- Header with Paper Title + Link -->
+  <div class="flex flex-col items-center justify-center p-4 bg-white shadow-sm">
+    <h2 id="paper-title" class="text-2xl font-bold mb-2 text-center"></h2>
+    <a id="paper-link" class="text-blue-600 underline" href="#" target="_blank"></a>
+  </div>
+
+  <!-- Main Chat Area -->
+  <div class="flex flex-1 overflow-hidden">
+
+    <div class="flex flex-col flex-1 overflow-hidden">
+
+      <!-- Messages -->
+      <div id="chat-window" class="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-gray-50"></div>
+
+      <!-- Input -->
+      <div class="p-4 border-t bg-white">
+        <form id="chat-form" class="flex items-center gap-4">
+          <input id="chat-input" type="text" placeholder="Ask about the paper..."
+            class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            Send
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+const chatWindow = document.getElementById('chat-window');
+const paperTitleEl = document.getElementById('paper-title');
+const paperLinkEl = document.getElementById('paper-link');
+
+// 🧠 Retrieve saved paper details from sessionStorage
+const savedPaperTitle = sessionStorage.getItem('paper_title');
+const savedPaperUrl = sessionStorage.getItem('paper_url');
+
+if (savedPaperTitle && savedPaperUrl) {
+  paperTitleEl.innerText = savedPaperTitle;
+  paperLinkEl.innerText = "View Full Paper";
+  paperLinkEl.href = savedPaperUrl;
+}
+
+// Show typing animation
+function showTypingIndicator() {
+  const typingId = "typing-indicator";
+  const old = document.getElementById(typingId);
+  if (old) old.remove();
+
+  const typingDiv = document.createElement('div');
+  typingDiv.id = typingId;
+  typingDiv.className = 'flex';
+  typingDiv.innerHTML = `<div class="bg-gray-200 px-4 py-2 rounded-xl max-w-xl animate-pulse">Bot is typing...</div>`;
+  chatWindow.appendChild(typingDiv);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+// Remove typing animation
+function removeTypingIndicator() {
+  const typingDiv = document.getElementById("typing-indicator");
+  if (typingDiv) typingDiv.remove();
+}
+
+// Stream bot typing
+function typeBotMessage(fullText) {
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'flex';
+
+  const innerDiv = document.createElement('div');
+  innerDiv.className = 'bg-gray-200 px-4 py-2 rounded-xl max-w-xl';
+  msgDiv.appendChild(innerDiv);
+  chatWindow.appendChild(msgDiv);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i < fullText.length) {
+      innerDiv.textContent += fullText[i];
+      i++;
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    } else {
+      clearInterval(interval);
+    }
+  }, 20);
+}
+
+// Add user message
+function addUserMessage(text) {
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'flex justify-end';
+  msgDiv.innerHTML = `<div class="bg-blue-600 text-white px-4 py-2 rounded-xl max-w-xl">${text}</div>`;
+  chatWindow.appendChild(msgDiv);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+chatForm.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const message = chatInput.value.trim();
+  if (!message) return;
+
+  addUserMessage(message);
+  chatInput.value = '';
+
+  try {
+    showTypingIndicator();
+
+    const response = await fetch('http://127.0.0.1:5000/api/ask_question', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: message })
+    });
+
+    removeTypingIndicator();
+    const data = await response.json();
+
+    if (response.ok) {
+      typeBotMessage(data.answer);
+    } else {
+      typeBotMessage("❌ " + (data.message || "Failed to get answer."));
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    removeTypingIndicator();
+    typeBotMessage("❌ Something went wrong.");
+  }
+});
+</script>
+{% endblock %}
