@@ -78,7 +78,7 @@ Create a virtual environment and install dependencies: Install dependencies usin
 
 ![Scenario_ - visual selection (1)](https://github.com/user-attachments/assets/ffc9c638-6dc5-4dfd-93b4-bc94a11a423d)
 
-### Topic Classification & Reccommendation -
+### Topic Classification & Recommendation -
 
 ![Scenario_ - visual selection (1)](https://github.com/user-attachments/assets/3e98c744-451e-4ba7-afa7-729a6ea78d29)
 
