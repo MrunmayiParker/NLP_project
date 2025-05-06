@@ -1,4 +1,4 @@
-# 🧠 Research Paper Chat Assistant
+# 🧠 Research Paper Assistant
 
 A web-based platform that lets users interact with research papers using state-of-the-art language models. Upload, search, and chat with papers — all in one seamless experience.
 
