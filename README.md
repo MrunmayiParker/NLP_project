@@ -42,11 +42,30 @@ Create a virtual environment and install dependencies: Install dependencies usin
 3. Run the Flask app: `flask run`
 
 4. Open your browser and visit `http://localhost:5000`
+
+## NLP Workflows
+
+### RAG chat agent - 
+
+![Scenario_ - visual selection (1)](https://github.com/user-attachments/assets/ffc9c638-6dc5-4dfd-93b4-bc94a11a423d)
+
+### Reccommendation -
+
+![Rec workflow](https://github.com/user-attachments/assets/864066be-7181-4f1b-8f11-7ff826aff134)
+
+## Website workflow
+
+![Scenario_ - visual selection](https://github.com/user-attachments/assets/b9935669-40b8-40ef-9908-3121c5da9915)
+
+
 ​
 
 Group Members:
+
 Mrunmayi Parker
+
 Mohit Patel
+
 Nahush Patil
 
 
