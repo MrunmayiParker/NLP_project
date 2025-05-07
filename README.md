@@ -50,7 +50,7 @@ This application enables users to:
 - **Database:** SQLite3
 - **VectorDB:** FAISS
 - **Models:** BERT, OpenAI GPT-4-nano
-- **APIs:** arXiv, Google Scholar
+
 
 Create a virtual environment and install dependencies: Install dependencies using `pip install -r requirements.txt`.
 
